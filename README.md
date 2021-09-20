@@ -14,7 +14,7 @@
 | sections      | 包含多个可以并行执行的 sections 结构        |
 | single        | 单线程执行（不一定是主线程）                |
 | master        | 主线程执行                                  |
-| cirtial       | 任意时刻只能被单个线程执行                  |
+| critical       | 任意时刻只能被单个线程执行                  |
 | barrier       | 指定屏障，用于同步所有线程                  |
 | taskwait      | 等待子线程完成                              |
 | atomic        | 确保指定内存位置会原子更新                  |
