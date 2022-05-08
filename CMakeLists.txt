@@ -4,7 +4,7 @@ project(OpenMP)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(hello_world hw/hello_world.cpp)
-add_executable(test_for hw/test_for.cpp)
+add_executable(multi_matrix_parallel hw/multi_matrix_parallel.cpp)
 
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
