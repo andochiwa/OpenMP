@@ -39,12 +39,12 @@ double gemm(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vecto
 
 int main() {
     // initial
-    int size = 800;
+    int size = 2000;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
     vector<vector<int>> a(size, vector<int> (size)), b(size, vector<int> (size));
-    vector<vector<int>> c(size, vector<int> (size, 0)), d(size, vector<int> (size, 0));
+    vector<vector<int>> c(size, vector<int> (size, 0));
     vector<double> counts;
     uniform_int_distribution<int> u(INT_MIN / 2, INT_MAX / 2);
     default_random_engine e;

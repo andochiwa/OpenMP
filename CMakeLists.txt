@@ -4,6 +4,8 @@ project(OpenMP)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(multi_matrix_parallel hw/multi_matrix_parallel.cpp)
+add_executable(multi_vector_parallel hw/multi_vector_parallel.cpp)
+add_executable(multi_vector_transpose hw/multi_vector_transpose.cpp)
 
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
