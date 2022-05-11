@@ -22,7 +22,7 @@ template<typename T>
 double gemm(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vector<T>>& c, int size) {
     double start, end;
     start = omp_get_wtime();
-    #pragma omp parallel for shared(a, b, c, size)
+    #pragma omp parallel for shared(a, b, c, size) schedule(dynamic)
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             T temp = 0;

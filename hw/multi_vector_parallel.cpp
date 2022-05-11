@@ -23,14 +23,14 @@ double gemm(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vecto
     double start, end;
     start = omp_get_wtime();
     vector<T> a2(size * size), b2(size * size);
-#pragma omp parallel for shared(a2, b2, a, b, size)
+#pragma omp parallel for shared(a2, b2, a, b, size) schedule(dynamic)
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             a2[i * size + j] = a[i][j];
             b2[i * size + j] = b[i][j];
         }
     }
-#pragma omp parallel for shared(a2, b2, c, size)
+#pragma omp parallel for shared(a2, b2, c, size) schedule(dynamic)
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             T temp = 0;

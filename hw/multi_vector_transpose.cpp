@@ -22,7 +22,7 @@ template<typename T>
 vector<T> transpose(const vector<T>& vec) {
     int n = sqrt(vec.size());
     vector<T> res (n * n);
-#pragma omp parallel for shared(res, vec)
+#pragma omp parallel for shared(res, vec) schedule(dynamic)
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             res[j * n + i] = vec[i * n + j];
@@ -36,7 +36,7 @@ double gemm_transpose(const vector<vector<T>>& a, const vector<vector<T>>& b, ve
     double start, end;
     start = omp_get_wtime();
     vector<T> a2(size * size), b2(size * size);
-#pragma omp parallel for shared(a2, b2, a, b, size)
+#pragma omp parallel for shared(a2, b2, a, b, size) schedule(dynamic)
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             a2[i * size + j] = a[i][j];
@@ -44,39 +44,12 @@ double gemm_transpose(const vector<vector<T>>& a, const vector<vector<T>>& b, ve
         }
     }
     vector<T> b3 = transpose(b2);
-#pragma omp parallel for shared(a2, b3, c, size)
+#pragma omp parallel for shared(a2, b3, c, size) schedule(dynamic)
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             T temp = 0;
             for (int k = 0; k < size; k++) {
                 temp += a2[i * size + k] * b3[j * size + k];
-            }
-            c[i][j] = temp;
-        }
-    }
-    end = omp_get_wtime();
-    cout << "execution time = " << end - start << endl;
-    return end - start;
-}
-
-template<typename T>
-double gemm(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vector<T>>& c, int size) {
-    double start, end;
-    start = omp_get_wtime();
-    vector<T> a2(size * size), b2(size * size);
-#pragma omp parallel for shared(a2, b2, a, b, size)
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            a2[i * size + j] = a[i][j];
-            b2[i * size + j] = b[i][j];
-        }
-    }
-#pragma omp parallel for shared(a2, b2, c, size)
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            T temp = 0;
-            for (int k = 0; k < size; k++) {
-                temp += a2[i * size + k] * b2[k * size + j];
             }
             c[i][j] = temp;
         }
