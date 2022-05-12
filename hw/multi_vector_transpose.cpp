@@ -22,7 +22,7 @@ template<typename T>
 vector<T> transpose(const vector<T>& vec) {
     int n = sqrt(vec.size());
     vector<T> res (n * n);
-#pragma omp parallel for shared(res, vec) schedule(dynamic)
+#pragma omp parallel for shared(res, vec, n) schedule(dynamic)
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             res[j * n + i] = vec[i * n + j];
@@ -61,7 +61,7 @@ double gemm_transpose(const vector<vector<T>>& a, const vector<vector<T>>& b, ve
 
 int main() {
     // initial
-    int size = 2000;
+    int size = 3000;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
