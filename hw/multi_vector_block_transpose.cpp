@@ -19,25 +19,50 @@ void write_to_file(int thread_size, vector<double>& counts) {
 }
 
 template<typename T>
-double gemm(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vector<T>>& c, int size) {
+vector<T> transpose(const vector<T>& vec) {
+    int n = sqrt(vec.size());
+    vector<T> res (n * n);
+#pragma omp parallel for shared(res, vec, n) schedule(dynamic)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            res[j * n + i] = vec[i * n + j];
+        }
+    }
+    return res;
+}
+
+template<typename T>
+double gemm_transpose_block(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vector<T>>& c, int size) {
     double start, end;
+    int block_size = 8;
     start = omp_get_wtime();
     vector<T> a2(size * size), b2(size * size);
 #pragma omp parallel for shared(a2, b2, a, b, size) schedule(dynamic)
+    // 2D to 1D array
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             a2[i * size + j] = a[i][j];
             b2[i * size + j] = b[i][j];
         }
     }
-#pragma omp parallel for shared(a2, b2, c, size) schedule(dynamic)
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            T temp = 0;
-            for (int k = 0; k < size; k++) {
-                temp += a2[i * size + k] * b2[k * size + j];
+    // transpose matrix
+    vector<T> b3 = transpose(b2);
+#pragma omp parallel for collapse(5) default(shared)
+    // Block
+    for (int ii = 0; ii < size; ii += block_size) {
+        for (int jj = 0; jj < size; jj += block_size) {
+            for (int kk = 0; kk < size; kk += block_size) {
+                // computing
+                for (int i = ii; i < ii + block_size; i++) {
+                    for (int j = jj; j < jj + block_size; j++) {
+                        T temp = 0;
+                        for (int k = kk; k < kk + block_size; k++) {
+                            temp += a2[i * size + k] * b3[j * size + k];
+                        }
+                        c[i][j] = temp;
+                    }
+                }
             }
-            c[i][j] = temp;
         }
     }
     end = omp_get_wtime();
@@ -45,7 +70,6 @@ double gemm(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vecto
     return end - start;
 }
 
-#include <xmmintrin.h>
 int main() {
     // initial
     int size = 2000;
@@ -68,7 +92,7 @@ int main() {
 
     // computing
     for (int freq = 0; freq < 5; freq++) {
-        double time = gemm(a, b, c, size);
+        double time = gemm_transpose_block(a, b, c, size);
         counts.push_back(time);
     }
 
@@ -76,6 +100,3 @@ int main() {
 
     return 0;
 }
-
-
-

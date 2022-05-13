@@ -61,7 +61,7 @@ double gemm_transpose(const vector<vector<T>>& a, const vector<vector<T>>& b, ve
 
 int main() {
     // initial
-    int size = 3000;
+    int size = 4000;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
