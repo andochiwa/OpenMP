@@ -19,39 +19,6 @@ void write_to_file(int thread_size, vector<double>& counts) {
     ofs.close();
 }
 
-template<typename T>
-vector<T> transpose(const vector<T>& vec) {
-    int n = sqrt(vec.size());
-    vector<T> res (n * n);
-#pragma omp parallel for shared(res, vec, n) schedule(dynamic)
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            res[j * n + i] = vec[i * n + j];
-        }
-    }
-    return res;
-}
-
-template<typename T>
-double gemm_transpose(const vector<T>& a, const vector<T>& b, vector<T>& c, int size) {
-    double start, end;
-    start = omp_get_wtime();
-    auto b2 = transpose(b);
-#pragma omp parallel for shared(a, b2, c, size) schedule(dynamic)
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            T temp = 0;
-            for (int k = 0; k < size; k++) {
-                temp += a[i * size + k] * b2[j * size + k];
-            }
-            c[i * size + j] = temp;
-        }
-    }
-    end = omp_get_wtime();
-    cout << "execution time = " << end - start << endl;
-    return end - start;
-}
-
 double gemm_avx_unroll(int n, vector<int>& a, vector<int>& b, vector<int>& c, int unroll) {
     double start = omp_get_wtime();
 #pragma omp parallel for schedule(dynamic) default(shared)
@@ -101,8 +68,6 @@ int main() {
     // computing
     for (int freq = 0; freq < 5; freq++) {
         double time = gemm_avx_unroll(size, a, b, c, unroll);
-        gemm_transpose(a, b, d, size);
-        printf("%d\n", c == d);
         counts.push_back(time);
     }
 
