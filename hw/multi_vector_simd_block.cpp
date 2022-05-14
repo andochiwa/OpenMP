@@ -21,13 +21,13 @@ void write_to_file(int thread_size, vector<double>& counts) {
 
 void do_block(int n, vector<int>& a, vector<int>& b, vector<int>& c, int unroll, int block,
               int ii, int jj, int kk) {
-    for (int i = ii; i < ii + block; i++) {
-        for (int j = jj; j < jj + block; j += 8 * unroll) {
+    for (int i = ii; i < min(ii + block, n); i++) {
+        for (int j = jj; j < min(jj + block, n); j += 8 * unroll) {
             __m256i cx[unroll]; // unroll array
             for (int x = 0; x < unroll; x++) {
                 cx[x] = _mm256_load_si256((__m256i*) &c[i * n + j]); // cx[x] = c[i][j]
             }
-            for (int k = kk; k < kk + block; k++) {
+            for (int k = kk; k < min(kk + block, n); k++) {
                 auto bc_a = _mm256_set1_epi32(a[i * n + k]); // load 8 int from a
                 for (int x = 0; x < unroll; x++) {
                     // vec_b = b[k][j + (x + 8)] ~ b[k][j * 8 + (x * 8)]
@@ -64,7 +64,7 @@ double gemm_simd_unroll_block(int n, vector<int>& a, vector<int>& b, vector<int>
 
 int main() {
     // initial
-    int size = 2048;
+    int size = 2000;
     int unroll = 4;
     int thread_size = 1;
     cout << "please enter the threads size:";
