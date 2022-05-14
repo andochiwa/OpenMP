@@ -21,7 +21,7 @@ void write_to_file(int thread_size, vector<double>& counts) {
 
 double gemm_avx_unroll_block(int n, vector<int>& a, vector<int>& b, vector<int>& c, int unroll) {
     double start = omp_get_wtime();
-    int block = 64;
+    int block = unroll * 16; // Requirement >= unroll * memory alignment size
 #pragma omp parallel for collapse(5) default(shared)
     for (int ii = 0; ii < n; ii += block) {
         for (int jj = 0; jj < n; jj += block) {
@@ -55,7 +55,7 @@ double gemm_avx_unroll_block(int n, vector<int>& a, vector<int>& b, vector<int>&
 
 int main() {
     // initial
-    int size = 4096;
+    int size = 2048;
     int unroll = 4;
     int thread_size = 1;
     cout << "please enter the threads size:";
@@ -68,8 +68,8 @@ int main() {
     omp_set_num_threads(thread_size);
 
     for (int i = 0; i < size * size; i++) {
-        a[i] = 2;
-        b[i] = 3;
+        a[i] = u(e);
+        b[i] = u(e);
     }
 
     // computing
