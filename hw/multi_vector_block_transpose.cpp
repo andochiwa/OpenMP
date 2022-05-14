@@ -59,7 +59,7 @@ double gemm_transpose_block(const vector<vector<T>>& a, const vector<vector<T>>&
                         for (int k = kk; k < kk + block_size; k++) {
                             temp += a2[i * size + k] * b3[j * size + k];
                         }
-                        c[i][j] = temp;
+                        c[i][j] += temp;
                     }
                 }
             }
