@@ -32,39 +32,19 @@ vector<T> transpose(const vector<T>& vec) {
     return res;
 }
 
-template<typename T>
-double gemm_transpose(const vector<T>& a, const vector<T>& b, vector<T>& c, int size) {
-    double start, end;
-    start = omp_get_wtime();
-#pragma omp parallel for shared(a, b, c, size) schedule(dynamic)
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            T temp = 0;
-            for (int k = 0; k < size; k++) {
-                temp += a[i * size + k] * b[k * size + j];
-            }
-            c[i * size + j] = temp;
-        }
-    }
-    end = omp_get_wtime();
-    cout << "execution time = " << end - start << endl;
-    return end - start;
-}
-
-double gemm_avx(int n, vector<int>& a, vector<int>& b, vector<int>& c) {
+double gemm_simd(int n, vector<int>& a, vector<int>& b, vector<int>& c) {
     double start = omp_get_wtime();
-//    auto b2 = transpose(b);
 #pragma omp parallel for schedule(dynamic) default(shared)
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j += 8) {
-            auto c0 = _mm256_setzero_si256();
+            auto c0 = _mm256_setzero_si256(); // c0 = 0
             for (int k = 0; k < n; k++) {
-                auto bc_a = _mm256_set1_epi32(a[i * n + k]);
-                auto vec_b = _mm256_load_si256((__m256i*) &b[k * n + j]);
-                auto res = _mm256_mullo_epi32(bc_a, vec_b);
-                c0 = _mm256_add_epi32(c0, res);
+                auto bc_a = _mm256_set1_epi32(a[i * n + k]); // load 8 int from a
+                auto vec_b = _mm256_load_si256((__m256i*) &b[k * n + j]); // load 8 int from b
+                auto res = _mm256_mullo_epi32(bc_a, vec_b); // res = a * b
+                c0 = _mm256_add_epi32(c0, res); // c0 += res
             }
-            _mm256_store_si256((__m256i*) &c[i * n + j], c0);
+            _mm256_store_si256((__m256i*) &c[i * n + j], c0); // write 8 int to c from c0
         }
     }
     double end = omp_get_wtime();
@@ -92,9 +72,7 @@ int main() {
 
     // computing
     for (int freq = 0; freq < 5; freq++) {
-        double time = gemm_avx(size, a, b, c);
-        gemm_transpose(a, b, d, size);
-        printf("%d\n", c == d);
+        double time = gemm_simd(size, a, b, c);
         counts.push_back(time);
     }
 
