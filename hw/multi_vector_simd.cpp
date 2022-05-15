@@ -19,19 +19,6 @@ void write_to_file(int thread_size, vector<double>& counts) {
     ofs.close();
 }
 
-template<typename T>
-vector<T> transpose(const vector<T>& vec) {
-    int n = sqrt(vec.size());
-    vector<T> res (n * n);
-#pragma omp parallel for shared(res, vec, n) schedule(dynamic)
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            res[j * n + i] = vec[i * n + j];
-        }
-    }
-    return res;
-}
-
 double gemm_simd(int n, vector<int>& a, vector<int>& b, vector<int>& c) {
     double start = omp_get_wtime();
 #pragma omp parallel for schedule(dynamic) default(shared)
@@ -54,7 +41,7 @@ double gemm_simd(int n, vector<int>& a, vector<int>& b, vector<int>& c) {
 
 int main() {
     // initial
-    int size = 4000;
+    int size = 2000;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
@@ -73,6 +60,7 @@ int main() {
     // computing
     for (int freq = 0; freq < 5; freq++) {
         double time = gemm_simd(size, a, b, c);
+        printf("%d\n", c == d);
         counts.push_back(time);
     }
 
