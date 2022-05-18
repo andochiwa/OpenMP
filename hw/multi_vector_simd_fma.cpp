@@ -31,8 +31,7 @@ void do_block(int n, vector<double>& a, vector<double>& b, vector<double>& c, in
                 auto bc_a = _mm256_set1_pd(a[i * n + k]);
                 for (int x = 0; x < unroll; x++) {
                     auto vec_b = _mm256_load_pd(&b[k * n + j + (x * 4)]);
-                    auto res = _mm256_mul_pd(bc_a, vec_b);
-                    cx[x] = _mm256_add_pd(cx[x], res);
+                    cx[x] = _mm256_fmadd_pd(bc_a, vec_b, cx[x]);
                 }
             }
             for (int x = 0; x < unroll; x++) {

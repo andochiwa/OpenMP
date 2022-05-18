@@ -34,7 +34,7 @@ vector<T> transpose(const vector<T>& vec) {
 template<typename T>
 double gemm_transpose_block(const vector<vector<T>>& a, const vector<vector<T>>& b, vector<vector<T>>& c, int size) {
     double start, end;
-    int block_size = 14;
+    int block_size = 8;
     start = omp_get_wtime();
     vector<T> a2(size * size), b2(size * size);
 #pragma omp parallel for shared(a2, b2, a, b, size) schedule(dynamic)
@@ -72,14 +72,14 @@ double gemm_transpose_block(const vector<vector<T>>& a, const vector<vector<T>>&
 
 int main() {
     // initial
-    int size = 4004;
+    int size = 2000;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
-    vector<vector<int>> a(size, vector<int> (size)), b(size, vector<int> (size));
-    vector<vector<int>> c(size, vector<int> (size, 0));
+    vector<vector<double>> a(size, vector<double> (size)), b(size, vector<double> (size));
+    vector<vector<double>> c(size, vector<double> (size, 0));
     vector<double> counts;
-    uniform_int_distribution<int> u(INT_MIN / 2, INT_MAX / 2);
+    uniform_real_distribution<double> u((double) INT_MIN / 2, (double) INT_MAX / 2);
     default_random_engine e;
     omp_set_num_threads(thread_size);
 
