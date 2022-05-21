@@ -147,7 +147,7 @@ double gemm(const vector<T>& a, const vector<T>& b, vector<T>& c, int size) {
 
 int main() {
     // initial
-    int size = 2000;
+    int size = 3000;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
