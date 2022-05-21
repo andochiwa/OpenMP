@@ -3,7 +3,7 @@ project(OpenMP)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -mfma -mavx -mavx2 -ffp-contract=fast")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -mfma -mavx -mavx2 -ffp-contract=fast")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -mfma -mavx -mavx2 -O2 -ffp-contract=fast")
 
 add_executable(multi_matrix_parallel hw/multi_matrix_parallel.cpp)
 add_executable(multi_vector_parallel hw/multi_vector_parallel.cpp)
@@ -13,6 +13,7 @@ add_executable(multi_vector_simd hw/multi_vector_simd.cpp)
 add_executable(multi_vector_simd_unroll hw/multi_vector_simd_unroll.cpp)
 add_executable(multi_vector_simd_block hw/multi_vector_simd_block.cpp)
 add_executable(multi_vector_simd_fma hw/multi_vector_simd_fma.cpp)
+add_executable(multi_vector_strassen hw/multi_vector_strassen.cpp)
 
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
