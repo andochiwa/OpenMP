@@ -11,7 +11,7 @@ void write_to_file(int thread_size, vector<double>& counts) {
     ofstream ofs;
     string file_name = "data" + to_string(thread_size) + ".txt";
     ofs.open(file_name, ios::out);
-    ofs << "thread_size: " << thread_size << ", ";
+    ofs << "thread_size: " << thread_size << ",  ";
     for (auto& c : counts) {
         ofs << c << " ";
     }
