@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.20)
 project(OpenMP)
 
+include_directories("F:\\Microsoft MPI\\Include")
+link_directories("F:\\Microsoft MPI\\Lib\\x64")
+link_libraries(msmpi)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -mfma -mavx -mavx2 -ffp-contract=fast")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -mfma -mavx -mavx2 -O2 -ffp-contract=fast")
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,1000000000")
 
 add_executable(multi_matrix_parallel hw/multi_matrix_parallel.cpp)
 add_executable(multi_vector_parallel hw/multi_vector_parallel.cpp)
@@ -14,6 +20,9 @@ add_executable(multi_vector_simd_unroll hw/multi_vector_simd_unroll.cpp)
 add_executable(multi_vector_simd_block hw/multi_vector_simd_block.cpp)
 add_executable(multi_vector_simd_fma hw/multi_vector_simd_fma.cpp)
 add_executable(multi_vector_strassen hw/multi_vector_strassen.cpp)
+add_executable(at1 exec/at1.cpp)
+add_executable(test_mpi mpi/test_mpi.cpp)
+add_executable(vector_matrix_mul mpi/vector_matrix_mul.cpp)
 
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)

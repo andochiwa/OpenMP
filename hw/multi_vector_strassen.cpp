@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <omp.h>
+#include <immintrin.h>
 
 using namespace std;
 
@@ -35,10 +36,26 @@ void MUL(vector<int>& a, vector<int>& b, vector<int>& res, int n) {
     }
 }
 
+void MUL2(vector<int>& a, vector<int>& b, vector<int>& c, int n) {
+#pragma omp parallel for schedule(dynamic) default(shared)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j += 8) {
+            auto c0 = _mm256_setzero_si256(); // c0 = 0
+            for (int k = 0; k < n; k++) {
+                auto bc_a = _mm256_set1_epi32(a[i * n + k]); // load 8 int from a
+                auto vec_b = _mm256_load_si256((__m256i*) &b[k * n + j]); // load 8 int from b
+                auto res = _mm256_mullo_epi32(bc_a, vec_b); // res = a * b
+                c0 = _mm256_add_epi32(c0, res); // c0 += res
+            }
+            _mm256_store_si256((__m256i*) &c[i * n + j], c0); // write 8 int to c from c0
+        }
+    }
+}
+
 void strassen(vector<int>& A, vector<int>& B, vector<int>& C, int n) {
     // recursion end
-    if (n <= 64 || n % 2 != 0) {
-        MUL(A, B, C, n);
+    if (n <= 752 || n % 2 != 0) {
+        MUL2(A, B, C, n);
         return;
     }
 
@@ -147,7 +164,7 @@ double gemm(const vector<T>& a, const vector<T>& b, vector<T>& c, int size) {
 
 int main() {
     // initial
-    int size = 2000;
+    int size = 3008;
     int thread_size = 1;
     cout << "please enter the threads size:";
     cin >> thread_size;
